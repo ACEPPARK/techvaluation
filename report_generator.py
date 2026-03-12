@@ -14,28 +14,71 @@ class KoreanPDF(FPDF):
 
     def __init__(self):
         super().__init__()
-        font_path = self._find_korean_font()
-        if font_path:
-            self.add_font("Korean", "", font_path, uni=True)
-            self.add_font("Korean", "B", font_path, uni=True)
-            self._korean_font = "Korean"
-        else:
-            self._korean_font = "Helvetica"
+        self._korean_font = None
+        self._load_korean_font()
 
-    def _find_korean_font(self):
-        """시스템에서 한글 폰트 탐색"""
+    def _load_korean_font(self):
+        """시스템에서 한글 폰트를 찾아 로드"""
         candidates = [
             "/System/Library/Fonts/AppleSDGothicNeo.ttc",
-            "/System/Library/Fonts/Supplemental/AppleGothic.ttf",
             "/Library/Fonts/NanumGothic.ttf",
+            "/Library/Fonts/NanumGothicBold.ttf",
             "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
             "C:/Windows/Fonts/malgun.ttf",
             "C:/Windows/Fonts/gulim.ttc",
         ]
         for path in candidates:
             if os.path.exists(path):
-                return path
-        return None
+                try:
+                    self.add_font("Korean", "", path)
+                    self.add_font("Korean", "B", path)
+                    self._korean_font = "Korean"
+                    return
+                except Exception:
+                    continue
+
+        # AppleGothic은 OS/2 테이블 이슈로 별도 처리
+        apple_gothic = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+        if os.path.exists(apple_gothic):
+            try:
+                self.add_font("Korean", "", apple_gothic)
+                self.add_font("Korean", "B", apple_gothic)
+                self._korean_font = "Korean"
+                return
+            except Exception:
+                pass
+
+        # 폰트를 못 찾으면 NanumGothic 자동 다운로드 시도
+        try:
+            nanum_path = self._download_nanum_font()
+            if nanum_path:
+                self.add_font("Korean", "", nanum_path)
+                self.add_font("Korean", "B", nanum_path)
+                self._korean_font = "Korean"
+                return
+        except Exception:
+            pass
+
+        raise RuntimeError(
+            "한글 폰트를 찾을 수 없습니다. "
+            "NanumGothic 폰트를 설치해주세요: pip install fonts-nanum 또는 "
+            "https://hangeul.naver.com 에서 나눔고딕을 다운로드하세요."
+        )
+
+    def _download_nanum_font(self):
+        """NanumGothic 폰트 자동 다운로드"""
+        import urllib.request
+        font_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+        os.makedirs(font_dir, exist_ok=True)
+        font_path = os.path.join(font_dir, "NanumGothic.ttf")
+        if os.path.exists(font_path):
+            return font_path
+        url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
+        try:
+            urllib.request.urlretrieve(url, font_path)
+            return font_path
+        except Exception:
+            return None
 
     def set_korean_font(self, size=10, bold=False):
         style = "B" if bold else ""
