@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-blue-800 text-white px-6 py-2.5 rounded-lg font-medium
+           hover:bg-blue-900 transition-colors duration-200
+           disabled:bg-gray-400 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-white text-blue-800 border border-blue-800 px-6 py-2.5 rounded-lg font-medium
+           hover:bg-blue-50 transition-colors duration-200;
+  }
+  .btn-ai {
+    @apply bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium text-sm
+           hover:bg-emerald-700 transition-colors duration-200 flex items-center gap-2;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-sm
+           hover:bg-red-700 transition-colors duration-200;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  }
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+           placeholder-gray-400;
+  }
+  .select-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  .section-title {
+    @apply text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200;
+  }
+  .subsection-title {
+    @apply text-base font-semibold text-gray-800 mb-3;
+  }
+}
+
+/* TipTap Editor Styles */
+.tiptap-editor .ProseMirror {
+  min-height: 200px;
+  padding: 1rem;
+  outline: none;
+}
+.tiptap-editor .ProseMirror p { margin-bottom: 0.5rem; }
+.tiptap-editor .ProseMirror h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; }
+.tiptap-editor .ProseMirror h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+.tiptap-editor .ProseMirror h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.tiptap-editor .ProseMirror ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+.tiptap-editor .ProseMirror ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+.tiptap-editor .ProseMirror strong { font-weight: 700; }
+.tiptap-editor .ProseMirror em { font-style: italic; }
+.tiptap-editor .ProseMirror u { text-decoration: underline; }
