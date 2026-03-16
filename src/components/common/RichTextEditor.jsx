@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -25,13 +25,29 @@ const MenuBar = ({ editor }) => {
 };
 
 export default function RichTextEditor({ content, onChange, placeholder = '내용을 입력하세요...', minHeight = '200px' }) {
+  const isInternalUpdate = useRef(false);
+
   const editor = useEditor({
     extensions: [StarterKit, Underline],
     content: content || '',
     onUpdate: ({ editor }) => {
+      isInternalUpdate.current = true;
       onChange(editor.getHTML());
     },
   });
+
+  // Sync content from external updates (e.g., AI generation)
+  useEffect(() => {
+    if (!editor) return;
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false;
+      return;
+    }
+    const currentHTML = editor.getHTML();
+    if (content && content !== currentHTML) {
+      editor.commands.setContent(content, false);
+    }
+  }, [content, editor]);
 
   return (
     <div className="tiptap-editor border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">

@@ -9,15 +9,21 @@ import { generateSectionText } from '../../services/geminiService';
 
 export default function Step4MarketAnalysis() {
   const { marketAnalysis, updateField, updateNestedField } = useValuationStore();
-  const { isGeneratingText, setGeneratingText } = useUIStore();
+  const { isGeneratingText, setGeneratingText, geminiApiKey } = useUIStore();
 
   const handleAIGenerate = async (section) => {
+    if (!geminiApiKey && !import.meta.env.VITE_GEMINI_API_KEY) {
+      alert('Gemini API 키를 먼저 입력해주세요. (상단 헤더의 "API 키" 버튼)');
+      return;
+    }
     setGeneratingText(true);
     try {
-      const text = await generateSectionText(section, { marketAnalysis });
+      const text = await generateSectionText(section, { marketAnalysis }, geminiApiKey);
       if (text) updateField('marketAnalysis', section, text);
-    } catch(e) { console.error('AI 생성 실패:', e); }
-    finally { setGeneratingText(false); }
+    } catch(e) {
+      console.error('AI 생성 실패:', e);
+      alert('AI 텍스트 생성 실패: ' + e.message);
+    } finally { setGeneratingText(false); }
   };
 
   return (

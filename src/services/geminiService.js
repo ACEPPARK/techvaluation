@@ -3,16 +3,15 @@
  * 보고서 각 섹션의 전문적인 한국어 텍스트 생성
  */
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-async function callGemini(prompt) {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Gemini API 키가 설정되지 않았습니다. .env 파일에 VITE_GEMINI_API_KEY를 설정해주세요.');
+async function callGemini(prompt, apiKey) {
+  const key = apiKey || import.meta.env.VITE_GEMINI_API_KEY;
+  if (!key) {
+    throw new Error('Gemini API 키가 설정되지 않았습니다. 상단 헤더에서 API 키를 입력해주세요.');
   }
 
   try {
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const genAI = new GoogleGenerativeAI(key);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     const result = await model.generateContent(prompt);
     return result.response.text();
@@ -69,20 +68,20 @@ ${data.marketAnalysis?.ksicCode ? `KSIC: ${data.marketAnalysis.ksicCode}` : ''}`
 <ul><li> 형식으로 한국어로 작성해주세요.`,
 };
 
-export async function generateSectionText(sectionKey, data) {
+export async function generateSectionText(sectionKey, data, apiKey) {
   const promptBuilder = SECTION_PROMPTS[sectionKey];
   if (!promptBuilder) {
     throw new Error(`Unknown section: ${sectionKey}`);
   }
   const prompt = promptBuilder(data);
-  return await callGemini(prompt);
+  return await callGemini(prompt, apiKey);
 }
 
-export async function generateBatchTexts(sections, storeData) {
+export async function generateBatchTexts(sections, storeData, apiKey) {
   const results = {};
   for (const section of sections) {
     try {
-      results[section] = await generateSectionText(section, storeData);
+      results[section] = await generateSectionText(section, storeData, apiKey);
     } catch (e) {
       console.error(`Section ${section} generation failed:`, e);
       results[section] = null;

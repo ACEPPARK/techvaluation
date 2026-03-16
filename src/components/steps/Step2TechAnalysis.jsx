@@ -15,17 +15,22 @@ const competitorColumns = [
 
 export default function Step2TechAnalysis() {
   const { techAnalysis, updateField, updateNestedField, addArrayItem, removeArrayItem, updateArrayItem, setGeneratedText, generatedTexts } = useValuationStore();
-  const { isGeneratingText, setGeneratingText } = useUIStore();
+  const { isGeneratingText, setGeneratingText, geminiApiKey } = useUIStore();
 
   const handleAIGenerate = async (section, prompt) => {
+    if (!geminiApiKey && !import.meta.env.VITE_GEMINI_API_KEY) {
+      alert('Gemini API 키를 먼저 입력해주세요. (상단 헤더의 "API 키" 버튼)');
+      return;
+    }
     setGeneratingText(true);
     try {
-      const text = await generateSectionText(section, { techAnalysis, prompt });
+      const text = await generateSectionText(section, { techAnalysis, prompt }, geminiApiKey);
       if (text) {
         updateField('techAnalysis', section, text);
       }
     } catch (e) {
       console.error('AI 생성 실패:', e);
+      alert('AI 텍스트 생성 실패: ' + e.message);
     } finally {
       setGeneratingText(false);
     }

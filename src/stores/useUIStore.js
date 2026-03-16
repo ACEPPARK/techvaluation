@@ -16,9 +16,11 @@ const useUIStore = create((set) => ({
   sidebarCollapsed: false,
   isGeneratingText: false,
   isGeneratingDocx: false,
+  geminiApiKey: '',
   steps: STEPS,
 
   setStep: (step) => set({ currentStep: step }),
+  setGeminiApiKey: (key) => set({ geminiApiKey: key }),
   nextStep: () => set((state) => ({
     currentStep: Math.min(state.currentStep + 1, 7),
     completedSteps: state.completedSteps.includes(state.currentStep)
